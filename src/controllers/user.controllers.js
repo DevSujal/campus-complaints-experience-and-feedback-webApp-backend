@@ -8,6 +8,11 @@ import jwt from "jsonwebtoken";
 
 const SALT_ROUNDS = 10;
 
+const OPTION = {
+  http_only: true,
+  secure: true,
+};
+
 const generateRefreshToken = (user) => {
   return jwt.sign(
     {
@@ -36,16 +41,25 @@ const generateAccessToken = (user) => {
 };
 
 const generateRefreshAndAccessToken = asyncHandler(async (userId) => {
-  const user = prisma.user.findUnique({ where: { userId } });
+  const user = await prisma.user.findUnique({ where: { userId } });
 
   if (!user) {
     throw new ApiError(400, "user not existed");
   }
 
-  const refreshToken = generateRefreshToken(user)
-  const accessToken = generateAccessToken(user)
+  const refreshToken = generateRefreshToken(user);
+  const accessToken = generateAccessToken(user);
 
-  
+  await prisma.user.update(
+    {
+      where: { userId },
+    },
+    {
+      refreshToken,
+    }
+  );
+
+  return { refreshToken, accessToken };
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -71,9 +85,23 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "password is incorrect", [{ field: "password" }]);
   }
 
+  const { refreshToken, accessToken } = generateRefreshAndAccessToken(
+    existingUser.userId
+  );
+
+  if (!refreshToken || !accessToken) {
+    throw new ApiError(500, "internal server error", [
+      { field: "refreshToken" },
+    ]);
+  }
+
   delete existingUser.password;
 
-  res.json(new ApiResponse(200, existingUser, "user loggedin successfully"));
+  res
+    .status(200)
+    .cookie("accessToken", accessToken, OPTION)
+    .cookie("refreshToken", refreshToken, OPTION)
+    .json(new ApiResponse(200, existingUser, "user loggedin successfully"));
 });
 
 const registerUser = asyncHandler(async (req, res) => {
