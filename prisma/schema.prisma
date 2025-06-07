@@ -1,0 +1,96 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("NEON_DB_CONNECTION_STRING")
+}
+
+enum Role {
+    STUDENT
+    ADMIN
+    STAFF
+}
+
+model User {
+    userId              Int                   @id @default(autoincrement())
+    name                String
+    email               String                @unique
+    password            String
+    role                Role                  @default(STUDENT)
+    createAt            DateTime              @default(now())
+    updatedAt           DateTime              @updatedAt
+    questions           Question[] // 1 -> many relationship to access all the questions asked by user
+    answers             Answer[] // 1 -> many relationship to access all the answers given by user
+    complaintsCreated   Complaint[]           @relation("complaintsCreated") // 1 -> many relationship to access all the complaints done by user
+    complaintsAssigned  Complaint[]           @relation("complaintsAssigned")
+    feedback            Feedback[]
+    interviewExperience InterviewExperience[]
+}
+
+model Question {
+    questionId  Int      @id @default(autoincrement())
+    title       String
+    description String
+    askedBy     User     @relation(fields: [userId], references: [userId])
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    userId      Int
+    Answer      Answer[]
+}
+
+model Answer {
+    answerId   Int      @id @default(autoincrement())
+    question   Question @relation(fields: [questionId], references: [questionId])
+    // field is the field associated to these model 
+    // and refrences is associated with user model
+    givenBy    User     @relation(fields: [userId], references: [userId])
+    userId     Int
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+    questionId Int
+}
+
+enum Status {
+    PENDING
+    INPROGRESS
+    RESOLVED
+}
+
+model Complaint {
+    complaintId  Int        @id @default(autoincrement())
+    title        String
+    description  String
+    isAnonymous  Boolean    @default(false)
+    status       Status     @default(PENDING)
+    createdBy    User       @relation("complaintsCreated", fields: [createdById], references: [userId])
+    createdById  Int
+    assignedTo   User?      @relation("complaintsAssigned", fields: [assignedToId], references: [userId])
+    assignedToId Int?
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
+    Feedback     Feedback[]
+}
+
+model Feedback {
+    feedbackId  Int       @id @default(autoincrement())
+    complaint   Complaint @relation(fields: [complaintId], references: [complaintId])
+    complaintId Int
+    givenBy     User      @relation(fields: [userId], references: [userId])
+    userId      Int
+    isAnonymous Boolean   @default(false)
+    message     String
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+}
+
+model InterviewExperience {
+    interviewExperienceId Int     @id @default(autoincrement())
+    companyName           String
+    roleApplied           String
+    experience            String
+    tips                  String?
+    givenBy               User    @relation(fields: [userId], references: [userId])
+    userId                Int
+}

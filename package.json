@@ -1,0 +1,21 @@
+{
+  "name": "campus-complaints-experience-and-feedback-webapp-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "campus complaints/feedback and experience web app",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  }
+}
