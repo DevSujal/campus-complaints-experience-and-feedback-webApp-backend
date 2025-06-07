@@ -4,10 +4,49 @@ import prisma from "../prismaClient.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import bcrypt from "bcrypt";
 import { Role } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
 const SALT_ROUNDS = 10;
 
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+    }
+  );
+};
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+    }
+  );
+};
 
+const generateRefreshAndAccessToken = asyncHandler(async (userId) => {
+  const user = prisma.user.findUnique({ where: { userId } });
+
+  if (!user) {
+    throw new ApiError(400, "user not existed");
+  }
+
+  const refreshToken = generateRefreshToken(user)
+  const accessToken = generateAccessToken(user)
+
+  
+});
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -77,7 +116,5 @@ const registerUser = asyncHandler(async (req, res) => {
 
   res.json(new ApiResponse(201, newUser, "user created successfully"));
 });
-
-
 
 export { loginUser, registerUser };
