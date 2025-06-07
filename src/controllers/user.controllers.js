@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 const SALT_ROUNDS = 10;
 
 const OPTION = {
-  http_only: true,
+  httpOnly : true,
   secure: true,
 };
 
@@ -40,27 +40,32 @@ const generateAccessToken = (user) => {
   );
 };
 
-const generateRefreshAndAccessToken = asyncHandler(async (userId) => {
-  const user = await prisma.user.findUnique({ where: { userId } });
+const generateRefreshAndAccessToken = async (userId) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { userId } });
 
-  if (!user) {
-    throw new ApiError(400, "user not existed");
-  }
-
-  const refreshToken = generateRefreshToken(user);
-  const accessToken = generateAccessToken(user);
-
-  await prisma.user.update(
-    {
-      where: { userId },
-    },
-    {
-      refreshToken,
+    if (!user) {
+      throw new ApiError(400, "user not existed");
     }
-  );
 
-  return { refreshToken, accessToken };
-});
+    const refreshToken = generateRefreshToken(user);
+    const accessToken = generateAccessToken(user);
+
+    console.log(refreshToken, accessToken)
+    await prisma.user.update({
+      where: { userId },
+      data: { refreshToken },
+    });
+
+    return { refreshToken, accessToken };
+  } catch (error) {
+    throw new ApiError(
+      500,
+      error?.message ||
+        "something went wrong which generating access and refresh tokens"
+    );
+  }
+};
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -85,10 +90,11 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "password is incorrect", [{ field: "password" }]);
   }
 
-  const { refreshToken, accessToken } = generateRefreshAndAccessToken(
+  const { refreshToken, accessToken } = await generateRefreshAndAccessToken(
     existingUser.userId
   );
 
+  console.log(refreshToken, accessToken)
   if (!refreshToken || !accessToken) {
     throw new ApiError(500, "internal server error", [
       { field: "refreshToken" },
