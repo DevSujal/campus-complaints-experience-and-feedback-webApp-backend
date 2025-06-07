@@ -7,6 +7,8 @@ import { Role } from "@prisma/client";
 
 const SALT_ROUNDS = 10;
 
+
+
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
