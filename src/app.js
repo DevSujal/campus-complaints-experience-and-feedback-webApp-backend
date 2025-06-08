@@ -42,12 +42,10 @@ app.use(
 app.use(cookieParser());
 
 import userRouter from "./routes/user.routes.js";
+import complaintRouter from "./routes/complaints.routes.js";
 
 app.use("/api/v1/users", userRouter);
-
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
+app.use("/api/v1/complaints", complaintRouter);
 
 // Global error handler
 app.use((err, req, res, next) => {
