@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 const SALT_ROUNDS = 10;
 
 const OPTION = {
-  httpOnly : true,
+  httpOnly: true,
   secure: true,
 };
 
@@ -51,7 +51,7 @@ const generateRefreshAndAccessToken = async (userId) => {
     const refreshToken = generateRefreshToken(user);
     const accessToken = generateAccessToken(user);
 
-    console.log(refreshToken, accessToken)
+    console.log(refreshToken, accessToken);
     await prisma.user.update({
       where: { userId },
       data: { refreshToken },
@@ -94,7 +94,6 @@ const loginUser = asyncHandler(async (req, res) => {
     existingUser.userId
   );
 
-  console.log(refreshToken, accessToken)
   if (!refreshToken || !accessToken) {
     throw new ApiError(500, "internal server error", [
       { field: "refreshToken" },
@@ -102,6 +101,7 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   delete existingUser.password;
+  delete existingUser.refreshToken;
 
   res
     .status(200)
@@ -147,8 +147,133 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   delete newUser.password;
+  delete newUser.refreshToken;
 
   res.json(new ApiResponse(201, newUser, "user created successfully"));
 });
 
-export { loginUser, registerUser };
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  const incomingRefreshToken =
+    req.cookies?.refreshToken || req.body?.refreshToken;
+
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "uauthorized request refresh token is not present");
+  }
+
+  // jwt.verify will return an object which has userid, email, and name
+  //  with expiry date of refresh token
+  const decodedRefreshToken = jwt.verify(
+    incomingRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+
+  // finding the user based on userId we have added the userId at jwt refresh token
+  // so it is to find the user
+  const user = await prisma.user.findUnique({
+    where: {
+      userId: decodedRefreshToken?.userId,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(404, "Invalid refresh token");
+  }
+
+  if (user?.refreshToken !== incomingRefreshToken) {
+    throw new ApiError(401, "invalid refresh token");
+  }
+
+  const { accessToken, refreshToken } = await generateRefreshAndAccessToken(
+    user.userId
+  );
+
+  if (!refreshToken || !accessToken) {
+    throw new ApiError(500, "internal server error", [
+      { field: "refreshToken" },
+    ]);
+  }
+
+  // password should not go with the user data at the frontend
+  delete user.password;
+  delete user.refreshToken;
+
+  res
+    .cookie("refreshToken", refreshToken, OPTION)
+    .cookie("accessToken", accessToken, OPTION)
+    .json(new ApiResponse(200, user, "new refresh and access token created"));
+});
+
+const updateProfile = asyncHandler(async (req, res) => {
+  const { name, email, role } = req.body;
+
+  if (role && !Object.values(Role).includes(role.toUpperCase())) {
+    throw new ApiError(400, "role must be STUDENT, STAFF OR ADMIN");
+  }
+
+  const user = await prisma.user.update({
+    where: {
+      userId: req.user.userId,
+    },
+    data: {
+      name: name || req.user.name,
+      email: email || req.user.email,
+      role: role?.toUpperCase() || req.user.role,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(500, "something went wrong while updating user profile");
+  }
+
+  delete user.password;
+  delete user.refreshToken;
+
+  res.json(new ApiResponse(200, user, "profile updated successfully"));
+});
+
+const updatePassword = asyncHandler(async (req, res) => {
+  const { prevPassword, newPassword } = req.body;
+
+  if (!prevPassword || !newPassword) {
+    throw new ApiError(
+      400,
+      "prev password and new passoword is required to change password"
+    );
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      userId: req.user.userId,
+    },
+  });
+
+  const isMatched = await bcrypt.compare(prevPassword, user.password);
+
+  if (!isMatched) {
+    throw new ApiError(401, "invalid password");
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+  const updatedUser = await prisma.user.update({
+    where: {
+      userId: user.userId,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
+
+  delete updatedUser.password;
+  delete updatedUser.refreshToken;
+
+  res.json(new ApiResponse(200, updatedUser, "password updated successfully"));
+});
+
+export {
+  loginUser,
+  registerUser,
+  refreshAccessToken,
+  updateProfile,
+  updatePassword,
+};
