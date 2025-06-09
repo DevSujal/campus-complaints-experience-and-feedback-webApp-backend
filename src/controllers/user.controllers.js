@@ -134,6 +134,10 @@ const registerUser = asyncHandler(async (req, res) => {
       { field: "role" },
     ]);
   }
+
+  if (role.toUpperCase() === "ADMIN") {
+    throw new ApiError(400, "admin cant login directly");
+  }
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   const newUser = await prisma.user.create({
@@ -269,10 +273,35 @@ const updatePassword = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, updatedUser, "password updated successfully"));
 });
 
+const changeRoleToAdmin = asyncHandler(async (req, res) => {
+  const { userId } = req.body;
+
+  const updatedUser = await prisma.user.update({
+    where: {
+      userId,
+    },
+    data: {
+      role: "ADMIN",
+    },
+  });
+
+  if (!updatedUser) {
+    throw new ApiError(500, "internal server error");
+  }
+
+  delete updatedUser.password;
+  delete updatedUser.refreshToken;
+
+  res.json(
+    new ApiResponse(200, updatedUser, "role changed to admin successfully")
+  );
+});
+
 export {
   loginUser,
   registerUser,
   refreshAccessToken,
   updateProfile,
   updatePassword,
+  changeRoleToAdmin,
 };

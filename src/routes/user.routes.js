@@ -4,10 +4,11 @@ import {
   registerUser,
   refreshAccessToken,
   updateProfile,
-  updatePassword
+  updatePassword,
+  changeRoleToAdmin,
 } from "../controllers/user.controllers.js";
 
-import { validateUser } from "../middleware/user.middleware.js";
+import { validateAdmin, validateUser } from "../middleware/user.middleware.js";
 const router = Router();
 
 router.route("/login").post(loginUser);
@@ -15,5 +16,8 @@ router.route("/register").post(registerUser);
 router.route("/refresh-access-token").post(refreshAccessToken);
 router.route("/update-profile").put(validateUser, updateProfile);
 router.route("/update-password").put(validateUser, updatePassword);
+router
+  .route("/change-role-to-admin")
+  .put(validateUser, validateAdmin, changeRoleToAdmin);
 
 export default router;

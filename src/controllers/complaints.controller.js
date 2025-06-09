@@ -2,6 +2,7 @@ import ApiError from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import prisma from "../prismaClient.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import { Status } from "@prisma/client";
 
 const createComplaint = asyncHandler(async (req, res) => {
   const { title = "", description = "", isAnonymous = false } = req.body;
@@ -101,4 +102,122 @@ const getComplaintById = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, complaint, "complaint retrieved successfully"));
 });
 
-export { createComplaint, getUserComplaints, getComplaintById };
+const assignStaffToComplaint = asyncHandler(async (req, res) => {
+  const { user } = req;
+  const { staffEmail, complaintId } = req.body;
+
+  if (!user) {
+    throw new ApiError(401, "unauthorized access");
+  }
+
+  if (!staffEmail) {
+    throw new ApiError(400, "staff email required to assign complaint");
+  }
+
+  const staff = await prisma.user.findUnique({
+    where: {
+      email: staffEmail,
+    },
+  });
+
+  if (!staff) {
+    throw new ApiError(400, "invalid email  given");
+  }
+
+  if (staff.role !== "STAFF") {
+    throw new ApiError(400, "only staff email required");
+  }
+
+  const updatedComplaint = await prisma.complaint.update({
+    where: {
+      complaintId,
+    },
+    data: {
+      assignedTo: {
+        connect: {
+          userId: staff.userId,
+        },
+      },
+    },
+  });
+
+  if (!updatedComplaint) {
+    throw new ApiError(500, "internal server error");
+  }
+
+  if (updatedComplaint.isAnonymous) {
+    delete updatedComplaint.createdById;
+  }
+
+  res.json(
+    new ApiResponse(200, updatedComplaint, "staff assigned successfully")
+  );
+});
+
+const changeStatusOfComplaint = asyncHandler(async (req, res) => {
+  const { complaintId, status = "" } = req.body;
+
+  if (!complaintId) {
+    throw new ApiError(400, "complaint id is needed");
+  }
+
+  if (!req?.user || req?.user?.role !== "STAFF") {
+    throw new ApiError(401, "unauthorized access");
+  }
+
+  if (status && !Object.values(Status).includes(status.toUpperCase())) {
+    throw new ApiError(400, "status should be pending, inprogress, resolved");
+  }
+
+  const updatedComplaint = await prisma.complaint.update({
+    where: {
+      complaintId,
+    },
+    data: {
+      status: status?.toUpperCase() || "PENDING",
+    },
+  });
+
+  if (!updatedComplaint) {
+    throw new ApiError(500, "internal server error");
+  }
+
+  if (updatedComplaint.isAnonymous) {
+    delete updatedComplaint.createdById;
+  }
+
+  res.json(
+    new ApiResponse(200, updatedComplaint, "status updated successfully")
+  );
+});
+
+const deleteComplaint = asyncHandler(async (req, res) => {
+  const { complaintId } = req.body;
+
+  const deletedComplaint = await prisma.complaint.delete({
+    where: {
+      complaintId,
+    },
+  });
+
+  if (!deletedComplaint) {
+    throw new ApiError(500, "something happend while deleting complaint");
+  }
+
+  if (deletedComplaint.isAnonymous) {
+    delete deletedComplaint.createdById;
+  }
+
+  res.json(
+    new ApiResponse(200, deletedComplaint, "complaint deleted successfully")
+  );
+});
+
+export {
+  createComplaint,
+  getUserComplaints,
+  getComplaintById,
+  assignStaffToComplaint,
+  changeStatusOfComplaint,
+  deleteComplaint,
+};

@@ -36,4 +36,31 @@ const validateUser = asyncHandler(async (req, _, next) => {
   next();
 });
 
-export { validateUser };
+const validateAdmin = asyncHandler(async (req, _, next) => {
+  const { user } = req;
+
+  if (!user) {
+    throw new ApiError(401, "unauthorized access");
+  }
+
+  if (user.role !== "ADMIN") {
+    throw new ApiError(403, "admin's only allowed to use these route");
+  }
+
+  next();
+});
+const validateStaff = asyncHandler(async (req, _, next) => {
+  const { user } = req;
+
+  if (!user) {
+    throw new ApiError(401, "unauthorized access");
+  }
+
+  if (user.role !== "STAFF") {
+    throw new ApiError(403, "staff's only allowed to use these route");
+  }
+
+  next();
+});
+
+export { validateUser, validateStaff, validateAdmin };
