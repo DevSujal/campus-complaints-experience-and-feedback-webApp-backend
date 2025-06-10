@@ -71,6 +71,60 @@ const getExperienceById = asyncHandler(async (req, res) => {
   );
 });
 
-// const
+const getInterviewExperiences = asyncHandler(async (req, res) => {
+  // limit how many complaints to fetch at a time
+  const { cursor, limit = 10 } = req.query;
+  const take = parseInt(limit, 10) || 10;
 
-export { createExperience, getExperienceById };
+  const interviewExperiences = await prisma.interviewExperience.findMany({
+    // we need to fetch extra one to check if these is more complaints or not
+    //  to update nextCursor
+    take: take + 1,
+    orderBy: {
+      createdAt: "desc",
+    },
+    // spread operator is used to spread skip and cursor into findMany
+    // cursor means from where to start
+    ...(cursor && {
+      // skip : 1 means skip the current cursor so that it doesn't appear again
+      skip: 1,
+      cursor: {
+        interviewExperienceId: parseInt(cursor, 10),
+      },
+    }),
+  });
+
+  let nextCursor = null;
+
+  if (interviewExperiences.length > take) {
+    // these will remove the extra one
+    const nextItem = interviewExperiences.pop();
+    nextCursor = nextItem?.complaintId;
+  }
+
+  res.json(
+    new ApiResponse(
+      200,
+      { interviewExperiences, nextCursor },
+      "interview experiences retrieved successfully"
+    )
+  );
+});
+
+const getUserInterviewExperience = asyncHandler(async (req, res) => {
+  const interviewExperiences = await prisma.interviewExperience.findMany({
+    where: {
+      userId: req.user.userId,
+    },
+    orderBy :  {
+        
+    }
+  });
+
+  if (!interviewExperiences) {
+    throw new ApiError(500, "internal server error");
+  }
+
+});
+
+export { createExperience, getExperienceById, getInterviewExperiences };

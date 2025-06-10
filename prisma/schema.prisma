@@ -87,11 +87,13 @@ model Feedback {
 }
 
 model InterviewExperience {
-    interviewExperienceId Int     @id @default(autoincrement())
+    interviewExperienceId Int      @id @default(autoincrement())
     companyName           String
     roleApplied           String
     experience            String
     tips                  String?
-    givenBy               User    @relation(fields: [userId], references: [userId])
+    givenBy               User     @relation(fields: [userId], references: [userId])
+    createAt              DateTime @default(now())
+    updateAt              DateTime @updatedAt
     userId                Int
 }

@@ -196,6 +196,20 @@ const changeStatusOfComplaint = asyncHandler(async (req, res) => {
 const deleteComplaint = asyncHandler(async (req, res) => {
   const complaintId = parseInt(req.body.complaintId, 10);
 
+  const complaint = await prisma.complaint.findUnique({
+    where: {
+      complaintId,
+    },
+  });
+
+  if (!complaintId) {
+    throw new ApiError(400, "invalid complaint id");
+  }
+
+  if (complaint.createdById !== req.user.userId) {
+    throw new ApiError(403, "these route is forbidden for the user");
+  }
+
   const deletedComplaint = await prisma.complaint.delete({
     where: {
       complaintId,
@@ -217,7 +231,7 @@ const deleteComplaint = asyncHandler(async (req, res) => {
 
 const getComplaints = asyncHandler(async (req, res) => {
   // limit how many complaints to fetch at a time
-  const { lastComplaintId, limit = 10 } = req.query;
+  const { cursor, limit = 10 } = req.query;
   const take = parseInt(limit, 10) || 10;
 
   const complaints = await prisma.complaint.findMany({
@@ -233,7 +247,7 @@ const getComplaints = asyncHandler(async (req, res) => {
       // skip : 1 means skip the current cursor so that it doesn't appear again
       skip: 1,
       cursor: {
-        complaintId: parseInt(lastComplaintId, 10),
+        complaintId: parseInt(cursor, 10),
       },
     }),
   });
