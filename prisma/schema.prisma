@@ -38,19 +38,19 @@ model Question {
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
     userId      Int
-    Answer      Answer[]
+    Answer      Answer?
 }
 
 model Answer {
     answerId   Int      @id @default(autoincrement())
-    question   Question @relation(fields: [questionId], references: [questionId])
     // field is the field associated to these model 
     // and refrences is associated with user model
     givenBy    User     @relation(fields: [userId], references: [userId])
     userId     Int
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
-    questionId Int
+    question   Question @relation(fields: [questionId], references: [questionId])
+    questionId Int      @unique // <-- This is the crucial part for 1-to-1
 }
 
 enum Status {
