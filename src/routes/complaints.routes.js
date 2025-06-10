@@ -11,6 +11,7 @@ import {
   assignStaffToComplaint,
   changeStatusOfComplaint,
   deleteComplaint,
+  getComplaints,
 } from "../controllers/complaints.controller.js";
 const router = Router();
 
@@ -26,5 +27,6 @@ router
   .put(validateUser, validateStaff, changeStatusOfComplaint);
 
 router.route("/delete-complaint").delete(validateUser, deleteComplaint);
+router.route("/get-complaints").get(validateUser, getComplaints);
 
 export default router;

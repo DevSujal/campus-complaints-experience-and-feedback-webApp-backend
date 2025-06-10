@@ -104,7 +104,8 @@ const getComplaintById = asyncHandler(async (req, res) => {
 
 const assignStaffToComplaint = asyncHandler(async (req, res) => {
   const { user } = req;
-  const { staffEmail, complaintId } = req.body;
+  const { staffEmail } = req.body;
+  const complaintId = parseInt(req.body.complaintId, 10);
 
   if (!user) {
     throw new ApiError(401, "unauthorized access");
@@ -155,7 +156,8 @@ const assignStaffToComplaint = asyncHandler(async (req, res) => {
 });
 
 const changeStatusOfComplaint = asyncHandler(async (req, res) => {
-  const { complaintId, status = "" } = req.body;
+  const { status = "" } = req.body;
+  const complaintId = parseInt(req.body.complaintId, 10);
 
   if (!complaintId) {
     throw new ApiError(400, "complaint id is needed");
@@ -192,7 +194,7 @@ const changeStatusOfComplaint = asyncHandler(async (req, res) => {
 });
 
 const deleteComplaint = asyncHandler(async (req, res) => {
-  const { complaintId } = req.body;
+  const complaintId = parseInt(req.body.complaintId, 10);
 
   const deletedComplaint = await prisma.complaint.delete({
     where: {
@@ -213,6 +215,46 @@ const deleteComplaint = asyncHandler(async (req, res) => {
   );
 });
 
+const getComplaints = asyncHandler(async (req, res) => {
+  // limit how many complaints to fetch at a time
+  const { lastComplaintId, limit = 10 } = req.query;
+  const take = parseInt(limit, 10) || 10;
+
+  const complaints = await prisma.complaint.findMany({
+    // we need to fetch extra one to check if these is more complaints or not
+    //  to update nextCursor
+    take: take + 1,
+    orderBy: {
+      createdAt: "desc",
+    },
+    // spread operator is used to spread skip and cursor into findMany
+    // cursor means from where to start
+    ...(cursor && {
+      // skip : 1 means skip the current cursor so that it doesn't appear again
+      skip: 1,
+      cursor: {
+        complaintId: parseInt(lastComplaintId, 10),
+      },
+    }),
+  });
+
+  let nextCursor = null;
+
+  if (complaints.length > take) {
+    // these will remove the extra one
+    const nextItem = complaints.pop();
+    nextCursor = nextItem?.complaintId;
+  }
+
+  res.json(
+    new ApiResponse(
+      200,
+      { complaints, nextCursor },
+      "complaints retrieved successfully"
+    )
+  );
+});
+
 export {
   createComplaint,
   getUserComplaints,
@@ -220,4 +262,5 @@ export {
   assignStaffToComplaint,
   changeStatusOfComplaint,
   deleteComplaint,
+  getComplaints,
 };

@@ -110,7 +110,8 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
+  let { role } = req.body;
 
   if ([name, email, password].some((field) => !field || field.length == 0)) {
     throw new ApiError(
@@ -139,6 +140,12 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "admin cant login directly");
   }
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+  const userCount = await prisma.user.count();
+
+  if (userCount === 0) {
+    role = "ADMIN";
+  }
 
   const newUser = await prisma.user.create({
     data: {
