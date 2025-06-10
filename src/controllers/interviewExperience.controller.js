@@ -45,7 +45,7 @@ const createExperience = asyncHandler(async (req, res) => {
   );
 });
 
-const getExperience = asyncHandler(async (req, res) => {
+const getExperienceById = asyncHandler(async (req, res) => {
   const interviewExperienceId = parseInt(req.params.interviewExperienceId, 10);
 
   if (!interviewExperienceId) {
@@ -71,4 +71,6 @@ const getExperience = asyncHandler(async (req, res) => {
   );
 });
 
-export { createExperience };
+// const
+
+export { createExperience, getExperienceById };
