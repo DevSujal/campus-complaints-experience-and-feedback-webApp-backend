@@ -43,9 +43,11 @@ app.use(cookieParser());
 
 import userRouter from "./routes/user.routes.js";
 import complaintRouter from "./routes/complaints.routes.js";
+import interviewExperienceRouter from "./routes/interviewExperience.routes.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/complaints", complaintRouter);
+app.use("/api/v1/interview-experiences", interviewExperienceRouter);
 
 // Global error handler
 app.use((err, req, res, next) => {

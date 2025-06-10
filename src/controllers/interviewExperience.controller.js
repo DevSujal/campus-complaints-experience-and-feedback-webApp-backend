@@ -116,15 +116,27 @@ const getUserInterviewExperience = asyncHandler(async (req, res) => {
     where: {
       userId: req.user.userId,
     },
-    orderBy :  {
-        
-    }
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   if (!interviewExperiences) {
     throw new ApiError(500, "internal server error");
   }
 
+  res.json(
+    new ApiResponse(
+      200,
+      interviewExperiences,
+      "user interview experiences retrieved successfully"
+    )
+  );
 });
 
-export { createExperience, getExperienceById, getInterviewExperiences };
+export {
+  createExperience,
+  getExperienceById,
+  getInterviewExperiences,
+  getUserInterviewExperience,
+};

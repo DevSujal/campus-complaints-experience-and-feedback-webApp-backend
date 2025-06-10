@@ -93,7 +93,7 @@ model InterviewExperience {
     experience            String
     tips                  String?
     givenBy               User     @relation(fields: [userId], references: [userId])
-    createAt              DateTime @default(now())
-    updateAt              DateTime @updatedAt
+    createdAt             DateTime @default(now())
+    updatedAt             DateTime @updatedAt
     userId                Int
 }
