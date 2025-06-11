@@ -45,6 +45,7 @@ model Question {
 
 model Answer {
     answerId   Int      @id @default(autoincrement())
+    text       String
     // field is the field associated to these model 
     // and refrences is associated with user model
     givenBy    User     @relation(fields: [userId], references: [userId])
