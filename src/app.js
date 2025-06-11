@@ -46,12 +46,14 @@ import complaintRouter from "./routes/complaint.routes.js";
 import interviewExperienceRouter from "./routes/interviewExperience.routes.js";
 import feedbackRouter from "./routes/feedback.routes.js";
 import questionRouter from "./routes/question.routes.js";
+import answerRouter from "./routes/answer.route.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/complaints", complaintRouter);
 app.use("/api/v1/interview-experiences", interviewExperienceRouter);
 app.use("/api/v1/feedbacks", feedbackRouter);
 app.use("/api/v1/questions", questionRouter);
+app.use("/api/v1/answers", answerRouter);
 
 // Global error handler
 app.use((err, _, res, _) => {
