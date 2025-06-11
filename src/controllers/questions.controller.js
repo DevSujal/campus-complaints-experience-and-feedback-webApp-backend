@@ -35,4 +35,25 @@ const createQuestion = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(201, question, "successfully created question"));
 });
 
-export { createQuestion };
+const getQuestionByExperienceId = asyncHandler(async (req, res) => {
+  const interviewExperienceId = parseInt(req.params.interviewExperience, 10);
+
+  if (!interviewExperienceId) {
+    throw new ApiError(400, "interview experience id not found");
+  }
+
+  const questions = await prisma.question.findMany({
+    where: { interviewExperienceId },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (!questions) {
+    throw new ApiError(500, "something went wrong while retrieving questions");
+  }
+
+  res.json(new ApiResponse(200, questions, "questions retrieved successfully"))
+});
+
+export { createQuestion, getQuestionByExperienceId };
