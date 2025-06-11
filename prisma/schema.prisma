@@ -39,7 +39,7 @@ model Question {
     updatedAt                                DateTime            @updatedAt
     userId                                   Int
     Answer                                   Answer?
-    InterviewExperience                      InterviewExperience @relation(fields: [interviewExperienceInterviewExperienceId], references: [interviewExperienceId])
+    interviewExperience                      InterviewExperience @relation(fields: [interviewExperienceInterviewExperienceId], references: [interviewExperienceId])
     interviewExperienceInterviewExperienceId Int
 }
 
