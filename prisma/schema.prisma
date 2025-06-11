@@ -31,16 +31,16 @@ model User {
 }
 
 model Question {
-    questionId                               Int                 @id @default(autoincrement())
-    title                                    String
-    description                              String
-    askedBy                                  User                @relation(fields: [userId], references: [userId])
-    createdAt                                DateTime            @default(now())
-    updatedAt                                DateTime            @updatedAt
-    userId                                   Int
-    Answer                                   Answer?
-    interviewExperience                      InterviewExperience @relation(fields: [interviewExperienceInterviewExperienceId], references: [interviewExperienceId])
-    interviewExperienceInterviewExperienceId Int
+    questionId            Int                 @id @default(autoincrement())
+    title                 String
+    description           String
+    askedBy               User                @relation(fields: [userId], references: [userId])
+    createdAt             DateTime            @default(now())
+    updatedAt             DateTime            @updatedAt
+    userId                Int
+    Answer                Answer?
+    interviewExperience   InterviewExperience @relation(fields: [interviewExperienceId], references: [interviewExperienceId])
+    interviewExperienceId Int
 }
 
 model Answer {
