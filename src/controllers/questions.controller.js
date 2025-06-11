@@ -35,7 +35,7 @@ const createQuestion = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(201, question, "successfully created question"));
 });
 
-const getQuestionByExperienceId = asyncHandler(async (req, res) => {
+const getQuestionsByExperienceId = asyncHandler(async (req, res) => {
   const interviewExperienceId = parseInt(req.params.interviewExperience, 10);
 
   if (!interviewExperienceId) {
@@ -53,7 +53,7 @@ const getQuestionByExperienceId = asyncHandler(async (req, res) => {
     throw new ApiError(500, "something went wrong while retrieving questions");
   }
 
-  res.json(new ApiResponse(200, questions, "questions retrieved successfully"))
+  res.json(new ApiResponse(200, questions, "questions retrieved successfully"));
 });
 
-export { createQuestion, getQuestionByExperienceId };
+export { createQuestion, getQuestionsByExperienceId };
