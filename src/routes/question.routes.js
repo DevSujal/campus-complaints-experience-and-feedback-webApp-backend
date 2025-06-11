@@ -2,7 +2,7 @@ import { Router } from "express";
 import { validateUser } from "../middleware/user.middleware.js";
 import {
   createQuestion,
-  getQuestionByExperienceId,
+  getQuestionsByExperienceId,
 } from "../controllers/questions.controller.js";
 
 const router = Router();
