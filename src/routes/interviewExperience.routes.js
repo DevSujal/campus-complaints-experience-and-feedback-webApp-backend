@@ -22,6 +22,6 @@ router
 router
   .route("/get-interview-experiences")
   .get(validateUser, getInterviewExperiences);
-router.route("/count-interview-experience").get(validateUser, countExperience);
+router.route("/count-interview-experiences").get(validateUser, countExperience);
 
 export default router;
