@@ -49,6 +49,7 @@ const validateAdmin = asyncHandler(async (req, _, next) => {
 
   next();
 });
+
 const validateStaff = asyncHandler(async (req, _, next) => {
   const { user } = req;
 

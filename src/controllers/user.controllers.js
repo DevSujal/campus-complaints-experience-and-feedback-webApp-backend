@@ -304,6 +304,17 @@ const changeRoleToAdmin = asyncHandler(async (req, res) => {
   );
 });
 
+const logoutUser = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError("unauthorized access");
+  }
+  res
+    .status(200)
+    .clearCookie("accessToken", OPTION)
+    .clearCookie("refreshToken", OPTION)
+    .json(new ApiResponse(200, {}, "user logged out successfully"));
+});
+
 export {
   loginUser,
   registerUser,
@@ -311,4 +322,5 @@ export {
   updateProfile,
   updatePassword,
   changeRoleToAdmin,
+  logoutUser,
 };

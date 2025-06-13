@@ -269,6 +269,45 @@ const getComplaints = asyncHandler(async (req, res) => {
   );
 });
 
+const countComplaints = asyncHandler(async (req, res) => {
+  const complaintsCount = await prisma.complaint.count();
+
+  if (typeof complaintsCount != "number" && !complaintsCount) {
+    throw new ApiError(500, "something went wrong while counting complaints");
+  }
+
+  res.json(
+    new ApiResponse(
+      200,
+      { complaintsCount },
+      "successfully retrieved count of complaints"
+    )
+  );
+});
+
+const countResolvedComplaints = asyncHandler(async (req, res) => {
+  const complaintsCount = await prisma.complaint.count({
+    where: {
+      status: "RESOLVED",
+    },
+  });
+
+  if (typeof complaintsCount !== "number" && !complaintsCount) {
+    throw new ApiError(
+      500,
+      "something went wrong while getting complaint count which are resolved"
+    );
+  }
+
+  res.json(
+    new ApiResponse(
+      200,
+      { complaintsCount },
+      "complaints retrieved successfully"
+    )
+  );
+});
+
 export {
   createComplaint,
   getUserComplaints,
@@ -277,4 +316,6 @@ export {
   changeStatusOfComplaint,
   deleteComplaint,
   getComplaints,
+  countComplaints,
+  countResolvedComplaints
 };

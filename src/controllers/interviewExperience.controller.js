@@ -134,9 +134,25 @@ const getUserInterviewExperience = asyncHandler(async (req, res) => {
   );
 });
 
+const countExperience = asyncHandler(async (_, res) => {
+  const experiencesCount = await prisma.interviewExperience.count();
+  if (typeof experiencesCount != "number" && !experiencesCount) {
+    throw new ApiError(500, "something went wrong while counting experience");
+  }
+
+  res.json(
+    new ApiResponse(
+      200,
+      { experiencesCount },
+      "successfully retrieved experience count"
+    )
+  );
+});
+
 export {
   createExperience,
   getExperienceById,
   getInterviewExperiences,
   getUserInterviewExperience,
+  countExperience,
 };

@@ -56,7 +56,7 @@ app.use("/api/v1/questions", questionRouter);
 app.use("/api/v1/answers", answerRouter);
 
 // Global error handler
-app.use((err, _, res, _) => {
+app.use((err, req, res, next) => {
   const statusCode = err.status || 500;
 
   return res.status(statusCode).json({

@@ -12,6 +12,8 @@ import {
   changeStatusOfComplaint,
   deleteComplaint,
   getComplaints,
+  countComplaints,
+  countResolvedComplaints,
 } from "../controllers/complaints.controller.js";
 const router = Router();
 
@@ -28,5 +30,6 @@ router
 
 router.route("/delete-complaint").delete(validateUser, deleteComplaint);
 router.route("/get-complaints").get(validateUser, getComplaints);
-
+router.route("/count-complaints").get(validateUser, countComplaints);
+router.route("/count-resolved-complaints").get(validateUser, countResolvedComplaints);
 export default router;
