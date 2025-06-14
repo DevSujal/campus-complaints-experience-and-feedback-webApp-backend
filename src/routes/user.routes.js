@@ -7,6 +7,7 @@ import {
   updatePassword,
   changeRoleToAdmin,
   logoutUser,
+  getUserDetails,
 } from "../controllers/user.controllers.js";
 
 import { validateAdmin, validateUser } from "../middleware/user.middleware.js";
@@ -21,5 +22,6 @@ router
   .route("/change-role-to-admin")
   .put(validateUser, validateAdmin, changeRoleToAdmin);
 router.route("/logout").get(validateUser, logoutUser);
+router.route("/get-user-details/:userId").get(validateUser, getUserDetails);
 
 export default router;

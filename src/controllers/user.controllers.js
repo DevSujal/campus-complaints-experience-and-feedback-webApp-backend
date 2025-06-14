@@ -315,6 +315,30 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "user logged out successfully"));
 });
 
+const getUserDetails = asyncHandler(async (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+
+  if (!userId) {
+    throw new ApiError(400, "user id required");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      userId,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(500, "something went wrong while finding user");
+  }
+
+  delete user.password;
+  delete user.refreshToken;
+  delete user.email;
+
+  res.json(new ApiResponse(200, user, "user retrieved successfully"));
+});
+
 export {
   loginUser,
   registerUser,
@@ -323,4 +347,5 @@ export {
   updatePassword,
   changeRoleToAdmin,
   logoutUser,
+  getUserDetails,
 };
