@@ -81,7 +81,6 @@ const getComplaintById = asyncHandler(async (req, res) => {
   // Other strings as base 10.
   const complaintId = parseInt(req.params.complaintId, 10);
 
-  console.log("these route is working")
   if (!complaintId) {
     throw new ApiError(400, "complaintId is not there");
   }
