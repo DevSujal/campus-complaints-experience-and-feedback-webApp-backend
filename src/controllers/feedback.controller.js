@@ -30,6 +30,7 @@ const createFeedback = asyncHandler(async (req, res) => {
 
       isAnonymous,
       message,
+      givenByName: isAnonymous ? null : user.name,
     },
   });
 
@@ -39,6 +40,7 @@ const createFeedback = asyncHandler(async (req, res) => {
 
   if (feedback.isAnonymous) {
     delete feedback.userId;
+    delete feedback.givenByName;
   }
 
   res.json(new ApiResponse(201, feedback, "feedback created successfully"));
@@ -66,7 +68,7 @@ const getFeedbacksOfComplaint = asyncHandler(async (req, res) => {
 
   const filteredFeedbacks = feedbacks.map((feedback) => {
     if (feedback.isAnonymous) {
-      const { givenBy, ...rest } = feedback;
+      const { givenBy, givenByName, ...rest } = feedback;
       return rest;
     }
 

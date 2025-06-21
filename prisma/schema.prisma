@@ -85,6 +85,7 @@ model Feedback {
     userId      Int
     isAnonymous Boolean   @default(false)
     message     String
+    givenByName String?
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
 }
