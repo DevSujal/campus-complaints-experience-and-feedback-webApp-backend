@@ -11,6 +11,8 @@ const SALT_ROUNDS = 10;
 const OPTION = {
   httpOnly: true,
   secure: true,
+  sameSite: "strict",
+  maxAge: 7 * 24 * 60 * 60 * 1000
 };
 
 const generateRefreshToken = (user) => {
