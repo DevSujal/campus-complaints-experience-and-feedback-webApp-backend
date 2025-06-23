@@ -10,6 +10,6 @@ const router = Router();
 router.route("/create-question").post(validateUser, createQuestion);
 router
   .route("/get-questions-by-experience-id/:interviewExperienceId")
-  .get(validateUser, getQuestionsByExperienceId);
+  .get(getQuestionsByExperienceId);
 
 export default router;

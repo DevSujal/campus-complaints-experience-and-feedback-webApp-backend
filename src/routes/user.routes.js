@@ -22,6 +22,6 @@ router
   .route("/change-role-to-admin")
   .put(validateUser, validateAdmin, changeRoleToAdmin);
 router.route("/logout").get(validateUser, logoutUser);
-router.route("/get-user-details/:userId").get(validateUser, getUserDetails);
+router.route("/get-user-details/:userId").get(getUserDetails);
 
 export default router;

@@ -10,6 +10,6 @@ const router = Router();
 router.route("/create-feedback").post(validateUser, createFeedback);
 router
   .route("/get-complaint-feedbacks/:complaintId")
-  .get(validateUser, getFeedbacksOfComplaint); 
+  .get(getFeedbacksOfComplaint); 
 
 export default router;

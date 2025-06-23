@@ -5,6 +5,6 @@ import { createAnswer, getAnswer } from "../controllers/answer.controller.js";
 const router = Router();
 
 router.route("/create-answer").post(validateUser, createAnswer);
-router.route("/get-answer/:questionId").get(validateUser, getAnswer);
+router.route("/get-answer/:questionId").get(getAnswer);
 
 export default router;

@@ -19,7 +19,7 @@ const router = Router();
 
 router.route("/create-complaint").post(validateUser, createComplaint);
 router.route("/get-user-complaints").get(validateUser, getUserComplaints);
-router.route("/get-complaint/:complaintId").get(validateUser, getComplaintById);
+router.route("/get-complaint/:complaintId").get(getComplaintById);
 router
   .route("/assign-staff-to-complaint")
   .put(validateUser, validateAdmin, assignStaffToComplaint);
@@ -29,9 +29,9 @@ router
   .put(validateUser, validateStaff, changeStatusOfComplaint);
 
 router.route("/delete-complaint").delete(validateUser, deleteComplaint);
-router.route("/get-complaints").get(validateUser, getComplaints);
-router.route("/count-complaints").get(validateUser, countComplaints);
+router.route("/get-complaints").get(getComplaints);
+router.route("/count-complaints").get(countComplaints);
 router
   .route("/count-resolved-complaints")
-  .get(validateUser, countResolvedComplaints);
+  .get(countResolvedComplaints);
 export default router;

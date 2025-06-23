@@ -15,13 +15,13 @@ router
   .post(validateUser, createExperience);
 router
   .route("/get-interview-experience-by-id/:interviewExperienceId")
-  .get(validateUser, getExperienceById);
+  .get(getExperienceById);
 router
   .route("/get-user-interview-experience")
   .get(validateUser, getUserInterviewExperience);
 router
   .route("/get-interview-experiences")
-  .get(validateUser, getInterviewExperiences);
-router.route("/count-interview-experiences").get(validateUser, countExperience);
+  .get(getInterviewExperiences);
+router.route("/count-interview-experiences").get(countExperience);
 
 export default router;
