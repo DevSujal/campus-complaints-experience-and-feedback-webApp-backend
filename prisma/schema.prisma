@@ -87,7 +87,7 @@ model Feedback {
     userId      Int
     isAnonymous Boolean   @default(false)
     message     String
-    givenByName String?
+    givenByName String
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
 }
@@ -99,6 +99,7 @@ model InterviewExperience {
     experience            String
     tips                  String?
     givenBy               User       @relation(fields: [userId], references: [userId])
+    givenByName           String
     questions             Question[]
     createdAt             DateTime   @default(now())
     updatedAt             DateTime   @updatedAt

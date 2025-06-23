@@ -25,6 +25,7 @@ const createQuestion = asyncHandler(async (req, res) => {
           interviewExperienceId,
         },
       },
+      askedByName: req.user.name,
     },
   });
 

@@ -30,7 +30,7 @@ const createFeedback = asyncHandler(async (req, res) => {
 
       isAnonymous,
       message,
-      givenByName: isAnonymous ? null : user.name,
+      givenByName: req.user.name,
     },
   });
 

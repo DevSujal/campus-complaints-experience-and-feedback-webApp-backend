@@ -26,6 +26,7 @@ const createComplaint = asyncHandler(async (req, res) => {
           userId: req.user.userId,
         },
       },
+      createdByIdName: req.user.name,
     },
   });
 
@@ -35,6 +36,7 @@ const createComplaint = asyncHandler(async (req, res) => {
 
   if (isAnonymous) {
     delete complaint.createdById;
+    delete complaint.createdByName;
   }
 
   res.json(new ApiResponse(201, complaint, "complaint created successfully"));
@@ -91,13 +93,13 @@ const getComplaintById = asyncHandler(async (req, res) => {
     },
   });
 
-
   if (!complaint) {
     throw new ApiError(500, "internal server error");
   }
 
   if (complaint.isAnonymous) {
     delete complaint.createdById;
+    delete complaint.createdByName;
   }
 
   res.json(new ApiResponse(200, complaint, "complaint retrieved successfully"));
@@ -223,6 +225,7 @@ const deleteComplaint = asyncHandler(async (req, res) => {
 
   if (deletedComplaint.isAnonymous) {
     delete deletedComplaint.createdById;
+    delete deletedComplaint.createdByName
   }
 
   res.json(
@@ -261,10 +264,18 @@ const getComplaints = asyncHandler(async (req, res) => {
     nextCursor = nextItem?.complaintId;
   }
 
+  const updatedComplaints = complaints.map((complaint) => {
+    if (complaint.isAnonymous) {
+      const { createdById, createdByName, ...rest } = complaint;
+      return rest;
+    }
+    return complaint;
+  });
+
   res.json(
     new ApiResponse(
       200,
-      { complaints, nextCursor },
+      { updatedComplaints, nextCursor },
       "complaints retrieved successfully"
     )
   );
@@ -318,5 +329,5 @@ export {
   deleteComplaint,
   getComplaints,
   countComplaints,
-  countResolvedComplaints
+  countResolvedComplaints,
 };

@@ -30,6 +30,7 @@ const createExperience = asyncHandler(async (req, res) => {
           userId: req.user.userId,
         },
       },
+      givenByName: req.user.name,
     },
   });
 
