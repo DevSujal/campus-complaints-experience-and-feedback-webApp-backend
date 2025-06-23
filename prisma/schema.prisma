@@ -35,6 +35,7 @@ model Question {
     title                 String
     description           String
     askedBy               User                @relation(fields: [userId], references: [userId])
+    askedByName           String
     createdAt             DateTime            @default(now())
     updatedAt             DateTime            @updatedAt
     userId                Int
@@ -44,16 +45,17 @@ model Question {
 }
 
 model Answer {
-    answerId   Int      @id @default(autoincrement())
-    text       String
+    answerId    Int      @id @default(autoincrement())
+    text        String
     // field is the field associated to these model 
     // and refrences is associated with user model
-    givenBy    User     @relation(fields: [userId], references: [userId])
-    userId     Int
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
-    question   Question @relation(fields: [questionId], references: [questionId])
-    questionId Int      @unique // <-- This is the crucial part for 1-to-1
+    givenBy     User     @relation(fields: [userId], references: [userId])
+    userId      Int
+    givenByName String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+    question    Question @relation(fields: [questionId], references: [questionId])
+    questionId  Int      @unique // <-- This is the crucial part for 1-to-1
 }
 
 enum Status {

@@ -14,7 +14,7 @@ router
   .route("/create-interview-experience")
   .post(validateUser, createExperience);
 router
-  .route("/get-interview-experience-by-id")
+  .route("/get-interview-experience-by-id/:interviewExperienceId")
   .get(validateUser, getExperienceById);
 router
   .route("/get-user-interview-experience")
